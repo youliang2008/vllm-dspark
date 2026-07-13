@@ -10,12 +10,20 @@ from json import JSONDecodeError, JSONDecoder
 from typing import Any, TypeAlias
 
 import partial_json_parser
-from openai.types.responses import (
-    FunctionTool,
-    NamespaceTool,
-    ToolChoiceFunction,
-)
-from openai.types.responses.tool import Tool as ResponsesTool
+try:
+    from openai.types.responses import (
+        FunctionTool,
+        NamespaceTool,
+        ToolChoiceFunction,
+    )
+    from openai.types.responses.tool import Tool as ResponsesTool
+except ImportError:
+    from openai.types.responses import (
+        FunctionTool,
+        ToolChoiceFunction,
+    )
+    from openai.types.responses.tool import Tool as ResponsesTool
+    NamespaceTool = None
 from partial_json_parser.core.options import Allow
 
 from vllm.entrypoints.openai.chat_completion.protocol import (
