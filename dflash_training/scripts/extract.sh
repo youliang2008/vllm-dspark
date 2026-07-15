@@ -7,7 +7,13 @@
 # data-parallel worker uses tensor_parallel_size=2 (a 2-GPU group).
 set -euo pipefail
 
-cd "$(dirname "$0")/../.."   # -> /root/vllm (so `-m dflash_training...` resolves)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+export PYTHONPATH="${PROJECT_ROOT}:${PYTHONPATH:-}"
+# Run from a neutral dir so the project's vllm/ source tree doesn't shadow
+# the installed vllm package.
+cd /tmp
 
 PY="${PY:-/root/anaconda3/envs/deepspec/bin/python}"
 
@@ -18,7 +24,7 @@ export TOKENIZERS_PARALLELISM="${TOKENIZERS_PARALLELISM:-false}"
 unset PYTORCH_CUDA_ALLOC_CONF
 
 export TARGET_MODEL_PATH="${TARGET_MODEL_PATH:-/root/Qwen3.6-27B-FP8}"
-export TRAIN_DATA_PATH="${TRAIN_DATA_PATH:-/root/DeepSpec/train_datasets/qwen3_27b/perfectblend_train_regen_30k.jsonl}"
+export TRAIN_DATA_PATH="${TRAIN_DATA_PATH:-${PROJECT_ROOT}/train_datasets/qwen3_27b/perfectblend_train_regen_30k.jsonl}"
 export HIDDEN_STATES_DIR="${HIDDEN_STATES_DIR:-/mnt/deepspec/qwen3_27b_dflash_hidden}"
 export AUX_LAYER_IDS="${AUX_LAYER_IDS:-8,20,32,44,56}"
 export MAX_SEQ_LEN="${MAX_SEQ_LEN:-4096}"

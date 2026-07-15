@@ -162,7 +162,7 @@ def main():
     parser.add_argument("--max_new_tokens", type=int, default=512)
     parser.add_argument("--temperature", type=float, default=1.0)
     parser.add_argument("--data_path", type=str,
-                        default="/root/DeepSpec/train_datasets/qwen3_27b/"
+                        default="train_datasets/qwen3_27b/"
                                 "perfectblend_train_regen_30k.jsonl")
     parser.add_argument("--output", type=str, default="dflash_bench.json")
     args = parser.parse_args()

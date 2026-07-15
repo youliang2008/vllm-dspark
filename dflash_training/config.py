@@ -24,7 +24,7 @@ class DFlashConfig:
     )
     train_data_path: str = _env(
         "TRAIN_DATA_PATH",
-        "/root/DeepSpec/train_datasets/qwen3_27b/perfectblend_train_regen_30k.jsonl",
+        "train_datasets/qwen3_27b/perfectblend_train_regen_30k.jsonl",
     )
     # Where extract.py writes per-request hidden-state shards + manifest.json.
     hidden_states_dir: str = _env(

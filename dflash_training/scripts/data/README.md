@@ -29,7 +29,7 @@ The example scripts assume a single machine with eight visible GPUs by default. 
 The source dataset is `mlabonne/open-perfectblend`. The train split is written as JSONL, and the held-out user turns are written under `eval_datasets/`.
 
 ```bash
-python scripts/data/download_and_split.py \
+python dflash_training/scripts/data/download_and_split.py \
     --dataset-name mlabonne/open-perfectblend \
     --test-size 0.05 \
     --train-output-path train_datasets/perfectblend_train.jsonl \
@@ -51,7 +51,7 @@ This step serves the target model and regenerates assistant answers against it. 
 Start local sglang servers in one terminal:
 
 ```bash
-bash scripts/data/launch_sglang_server.sh
+bash dflash_training/scripts/data/launch_sglang_server.sh
 ```
 
 By default this starts eight `Qwen/Qwen3-4B` workers on ports `30000` to `30007` and writes logs to:
@@ -63,7 +63,7 @@ logs/sglang_qwen3_4b/
 In another terminal, regenerate the assistant answers:
 
 ```bash
-python scripts/data/generate_train_data.py \
+python dflash_training/scripts/data/generate_train_data.py \
     --model Qwen/Qwen3-4B \
     --server-address \
         127.0.0.1:30000 \
@@ -111,11 +111,13 @@ export MASTER_PORT=${MASTER_PORT:-29500}
 export RANK=${RANK:-0}
 export WORLD_SIZE=${WORLD_SIZE:-1}
 
-python scripts/data/prepare_target_cache.py \
-    --config config/dspark/dspark_qwen3_4b.py \
-    --train-data-path train_datasets/qwen3_4b/perfectblend_train_regen.jsonl \
-    --output-dir ${HOME}/.cache/deepspec/qwen3_4b_target_cache \
-    --local-batch-size 16
+# NOTE: prepare_target_cache.py is part of the deepspec framework, not dflash_training.
+# DFlash uses dflash_training/scripts/extract.sh instead.
+# python deepspec/scripts/data/prepare_target_cache.py \
+#     --config config/dspark/dspark_qwen3_4b.py \
+#     --train-data-path train_datasets/qwen3_4b/perfectblend_train_regen.jsonl \
+#     --output-dir ${HOME}/.cache/deepspec/qwen3_4b_target_cache \
+#     --local-batch-size 16
 ```
 
 > **Storage warning:** The target cache stores per-token hidden states for the
@@ -137,7 +139,7 @@ This produces the cache consumed by [scripts/train/train.sh](../train/train.sh):
 The wrapper script combines the default public commands:
 
 ```bash
-bash scripts/data/prepare_data.sh
+bash dflash_training/scripts/data/prepare_data_qwen3_27b.sh
 ```
 
 Use the manual commands above if you want to stop and restart services between stages, change sampling parameters, use fewer GPUs, or inspect intermediate outputs.

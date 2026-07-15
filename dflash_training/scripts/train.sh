@@ -4,7 +4,11 @@
 # vLLM-native DFlashDraftModel checkpoint.
 set -euo pipefail
 
-cd "$(dirname "$0")/../.."   # -> /root/vllm (so `-m dflash_training...` resolves)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+export PYTHONPATH="${PROJECT_ROOT}:${PYTHONPATH:-}"
+cd /tmp
 
 PY="${PY:-/root/anaconda3/envs/deepspec/bin/python}"
 TORCHRUN="${TORCHRUN:-/root/anaconda3/envs/deepspec/bin/torchrun}"

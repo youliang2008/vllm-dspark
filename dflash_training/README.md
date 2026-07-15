@@ -13,8 +13,8 @@ Target model: **Qwen3.6-27B-FP8** (64 layers, hidden=5120, vocab=248320).
 
 | Stage | Script | 输入 | 输出 |
 |-------|--------|------|------|
-| 1. 下载数据 | `scripts/data/download_and_split.py` | HuggingFace dataset | train/eval JSONL |
-| 2. 生成回答 | `scripts/data/generate_train_data.py` | prompts JSONL | regen JSONL (target model 回答) |
+| 1. 下载数据 | `dflash_training/scripts/data/download_and_split.py` | HuggingFace dataset | train/eval JSONL |
+| 2. 生成回答 | `dflash_training/scripts/data/generate_train_data.py` | prompts JSONL | regen JSONL (target model 回答) |
 | 3. 抽取特征 | `dflash_training/scripts/extract.sh` | regen JSONL | hidden state shards |
 | 4. 训练+导出 | `dflash_training/scripts/train.sh` | hidden state shards | DFlashDraftModel checkpoint |
 | 5a. 精度评测 | `dflash_training/scripts/eval.sh` | checkpoint | acceptance rate, 正确性 |
@@ -46,7 +46,7 @@ nvidia-smi --query-gpu=name,memory.total --format=csv
 ```bash
 cd /root/vllm-dspark
 
-python scripts/data/download_and_split.py \
+python dflash_training/scripts/data/download_and_split.py \
     --dataset-name mlabonne/open-perfectblend \
     --test-size 0.05 \
     --train-output-path train_datasets/perfectblend_train.jsonl \
@@ -59,15 +59,15 @@ python scripts/data/download_and_split.py \
 先启动 sglang 推理服务器（8 workers, 每 worker 1 GPU）：
 
 ```bash
-bash scripts/data/launch_sglang_server_qwen3_27b.sh
+bash dflash_training/scripts/data/launch_sglang_server_qwen3_27b.sh
 # 或 vLLM:
-# bash scripts/data/launch_vllm_server_qwen3_27b.sh
+# bash dflash_training/scripts/data/launch_vllm_server_qwen3_27b.sh
 ```
 
 等服务器就绪后，批量生成：
 
 ```bash
-python scripts/data/generate_train_data.py \
+python dflash_training/scripts/data/generate_train_data.py \
     --model /root/Qwen3.6-27B-FP8 \
     --server-address 127.0.0.1:30000 127.0.0.1:30001 127.0.0.1:30002 127.0.0.1:30003 \
                      127.0.0.1:30004 127.0.0.1:30005 127.0.0.1:30006 127.0.0.1:30007 \
@@ -94,7 +94,7 @@ head -40000 train_datasets/qwen3_27b/perfectblend_train_regen.jsonl \
 以上两步也可以用 pipeline 脚本串联（需要先停 sglang 再跑 Step 3，dflash 不需要 Step 3）：
 
 ```bash
-bash scripts/data/prepare_data_qwen3_27b.sh
+bash dflash_training/scripts/data/prepare_data_qwen3_27b.sh
 ```
 
 ---
@@ -263,14 +263,14 @@ bash dflash_training/scripts/test-dflash-qwen3-27b.sh
 cd /root/vllm-dspark
 
 # 1. 数据准备 (已有数据可跳过)
-python scripts/data/download_and_split.py \
+python dflash_training/scripts/data/download_and_split.py \
     --dataset-name mlabonne/open-perfectblend --test-size 0.05 \
     --train-output-path train_datasets/perfectblend_train.jsonl \
     --test-output-dir eval_datasets --skip-existing
 
 # 2. 生成 target 回答 (需先启动 sglang 服务器)
-bash scripts/data/launch_sglang_server_qwen3_27b.sh
-python scripts/data/generate_train_data.py \
+bash dflash_training/scripts/data/launch_sglang_server_qwen3_27b.sh
+python dflash_training/scripts/data/generate_train_data.py \
     --model /root/Qwen3.6-27B-FP8 \
     --server-address 127.0.0.1:{30000..30007} \
     --concurrency 32 --temperature 0.7 --top-p 0.8 --max-tokens 4096 \

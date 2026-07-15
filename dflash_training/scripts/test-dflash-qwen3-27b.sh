@@ -9,7 +9,10 @@
 #   1. input=4096, output=2048
 #   2. input=512,  output=4096
 set -euo pipefail
-cd "$(dirname "$0")/../.."   # -> /root/vllm
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+export PYTHONPATH="${PROJECT_ROOT}:${PYTHONPATH:-}"
+cd /tmp
 
 export HF_HUB_OFFLINE="${HF_HUB_OFFLINE:-1}"
 export TRANSFORMERS_OFFLINE="${TRANSFORMERS_OFFLINE:-1}"
@@ -19,7 +22,7 @@ DRAFT_MODEL="${DRAFT_MODEL:-/mnt/deepspec/qwen3_27b_dflash_ckpt}"
 TENSOR_PARALLEL_SIZE="${TENSOR_PARALLEL_SIZE:-2}"
 NUM_PROMPTS="${NUM_PROMPTS:-32}"
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
-DATA_PATH="${DATA_PATH:-/root/DeepSpec/train_datasets/qwen3_27b/perfectblend_train_regen_30k.jsonl}"
+DATA_PATH="${DATA_PATH:-${PROJECT_ROOT}/train_datasets/qwen3_27b/perfectblend_train_regen_30k.jsonl}"
 OUTPUT="${OUTPUT:-dflash_bench_qwen3_27b.json}"
 
 AR_FILE="/tmp/bench_ar_$$.json"

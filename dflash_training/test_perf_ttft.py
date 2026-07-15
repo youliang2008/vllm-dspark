@@ -196,7 +196,7 @@ def main():
     parser.add_argument("--max_model_len", type=int, default=8192)
     parser.add_argument("--num_prompts", type=int, default=32)
     parser.add_argument("--data_path", type=str,
-                        default="/root/DeepSpec/train_datasets/qwen3_27b/"
+                        default="train_datasets/qwen3_27b/"
                                 "perfectblend_train_regen_30k.jsonl")
     parser.add_argument("--output", type=str, default="dflash_ttft_bench.json")
     args = parser.parse_args()
